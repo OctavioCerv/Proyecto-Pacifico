@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Reserva tu habitacion</title>
+    <meta name="description" content="">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="../css/estiloroom.css"> 
+</head>
+<body>
+    <header>
+        <nav class="navbr">
+            <h1><a href="../otherpages/index.html">Hotel el Pacifico</a></h1>
+        </nav>
+    </header>
+    <div class="reservation-form">
+        <h2>Reserva tu habitación</h2>
+        <form id="reservationForm" method="post">
+            <div class="form-group">
+                <label for="checkInDate">Check-in Date:</label>
+                <input type="date" id="checkInDate" name="checkInDate">
+                <label for="checkInDate">Check-Out Date:</label>
+                <input type="date" id="checkOut" name="checkOutDate">
+            </div>
+            <button name="allrooms" type="submit" class="button">Ver Habitaciones</button>
+        </form>
+        <div class="availability">
+            <h1>HABITACIONES</h1>
+
+            <?php
+                include("./conexion.php");
+                session_start();
+
+                $conexion = connection();
+
+                 if (isset($_POST["allrooms"])) {
+                    $sql = "SELECT * FROM `Habitacion`";
+                    $result = mysqli_query($conexion, $sql);
+                    if ($result) {
+                        if (mysqli_num_rows($result) > 0) {
+                            echo "<table class='tabla'>";
+                            echo "<tr><th>Room Name</th><th>Room Type</th><th>Room Price</th><th>Room Availability</th><th>Number of persons</th><th>Reservate</th></tr>";
+                            while ($row = mysqli_fetch_assoc($result)) {
+                                echo "<tr>";
+                                echo "<td>" . $row["nombre"] . "</td>";
+                                echo "<td>" . $row["tipo"] . "</td>";
+                                echo "<td>" . $row["precio"] . "</td>";
+                                echo "<td>" . $row["disponibilidad"] . "</td>";
+                                echo "<td class='people'>" . $row["numero_personas"] . "</td>";
+                                if ($row["disponibilidad"] == "disponible") {
+                                    echo "<td class='tdbutton'><div class='button-container'><form action='./Reservar.php' method='post'><input type='hidden' name='roomName' value='" . $row['nombre'] . "'><input type='hidden' name='roomPrice' value='" . $row['precio'] . "'><input type='hidden' name='roomType' value='" . $row['tipo'] . "'><input type='hidden' name='roomPersons' value='" . $row['numero_personas'] . "'><input type='hidden' name='checkInDate' value='" . $_POST['checkInDate'] . "'><input type='hidden' name='checkOutDate' value='" . $_POST['checkOutDate'] . "'><button class='button' type='submit' name='reservar'>Reservar</button></form></div></td>";
+                                } else {
+                                    echo "<td>Reservada</td>"; // Empty cell if room is not available
+                                }
+                                echo "</tr>";
+                            }
+                            echo "</table>";
+                        } else {
+                            echo "No rooms found";
+                        }
+                    } else {
+                        echo "Error: " . mysqli_error($conexion); // Error handling for query execution
+                    }
+                }
+                mysqli_close($conexion);
+            ?>
+        </div>
+    </div>
+</body>
+</html>
+
+
+
